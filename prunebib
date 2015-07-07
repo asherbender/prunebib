@@ -1,0 +1,137 @@
+#!/usr/bin/python
+"""
+.. sectionauthor:: Asher Bender <a.bender.dev@gmail.com>
+.. codeauthor:: Asher Bender <a.bender.dev@gmail.com>
+
+"""
+
+import os
+import argparse
+import bibtexparser
+from bibtexparser.bparser import BibTexParser
+from bibtexparser.bibdatabase import BibDatabase
+from bibtexparser.customization import convert_to_unicode
+
+def parse_bibtex(bibtex_path):
+    """Parse BibTeX data from .bib file.
+
+    Args:
+      bibtex_path (str): Path to BibTeX document.
+
+    Returns:
+      dict: Dictionary of BibTeX entries. Entries in the dictionary are
+          referenced by their BibTeX key. That is, keys in the dictionary
+          reference a BibTeX item (by BibTeX key) and values in the dictionary
+          contain BibTeX data.
+
+    """
+
+    parser = BibTexParser()
+
+    # Sanitise BibTeX field names, for example change url to link
+    # etc. Field names are always converted to lowercase names.
+    parser.homogenise_fields = True
+
+    # Ignore non-standard BibTeX types (book, article, etc).
+    parser.ignore_nonstandard_types = False
+
+    # Convert accent from latex to unicode style.
+    parser.customization = convert_to_unicode
+
+    # Load BibTeX database object from file.
+    with open(bibtex_path, 'r') as bibtex_file:
+        bib_database = bibtexparser.load(bibtex_file, parser=parser)
+
+    return bib_database.entries_dict
+
+def parse_citations(text):
+    """Parse BibTeX keys from LaTeX text.
+
+    Args:
+      text (str): LaTeX document text.
+
+    Returns:
+      list: List of BibTeX keys found in LaTeX text.
+
+    """
+
+    START_CITATION = '\cite{'
+    END_CITATION = '}'
+
+    # Iterate through document text finding citations.
+    end_index = 0
+    citations = list()
+    while True:
+        start_index = text.find(START_CITATION, end_index)
+        if start_index > -1:
+            end_index = text.find(END_CITATION, start_index)
+
+            # Extract BibTeX keys from citation command.
+            citation = text[start_index:end_index]
+            citation = citation.replace(START_CITATION, '')
+
+            # Clean up BibTeX keys and save items.
+            bibtexkeys = citation.split(',')
+            for key in bibtexkeys:
+                if key not in citations:
+                    citations.append(key.strip())
+        else:
+            break
+
+    # Return sorted BibTeX keys.
+    return sorted(citations)
+
+if __name__ == '__main__':
+
+    # -------------------------------------------------------------------------
+    #         Configure command-line options & parsing behaviour
+    # -------------------------------------------------------------------------
+
+    man = """Prune BibTeX file based on LaTeX citations."""
+    parser = argparse.ArgumentParser(description=man)
+
+    parser.add_argument('bibtex', metavar='[.bib]', type=str,
+                        help='path to BibTeX file')
+
+    parser.add_argument('latex', metavar='[.TeX]', type=str,
+                        help='path to LaTeX file')
+
+    # Get arguments from the command-line.
+    args = parser.parse_args()
+
+    # Ensure the BibTeX file exists.
+    if not os.path.isfile(args.bibtex):
+        msg = "The BibTeX file file '%s' does NOT exist."
+        raise IOError(msg % args.bibtex)
+
+    # Ensure the LaTeX file exists.
+    if not os.path.isfile(args.latex):
+        msg = "The LaTeX file file '%s' does NOT exist."
+        raise IOError(msg % args.latex)
+
+    # -------------------------------------------------------------------------
+    #                     Parse BibTeX and LaTeX files
+    # -------------------------------------------------------------------------
+
+    # Retrieve BibTeX database.
+    database = parse_bibtex(args.bibtex)
+
+    # Read LaTeX file.
+    with open(args.latex, 'r') as latex_file:
+        latex_data = latex_file.read()
+
+    # Parse document for BibTeX keys.
+    bibtex_keys = parse_citations(latex_data)
+
+    # Get BibTeX data referenced in LaTeX document.
+    used_citations = list()
+    for citation in bibtex_keys:
+        if citation in database:
+            used_citations.append(database[citation])
+        else:
+            print "Could not locate the key '%s'." % citation
+
+    # Create new BibTeX database based on LaTeX citations.
+    database = BibDatabase()
+    database.entries = used_citations
+    print bibtexparser.dumps(database)
