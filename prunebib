@@ -37,9 +37,6 @@ def parse_bibtex(bibtex_path):
     # Ignore non-standard BibTeX types (book, article, etc).
     parser.ignore_nonstandard_types = False
 
-    # Convert accent from latex to unicode style.
-    parser.customization = convert_to_unicode
-
     # Load BibTeX database object from file.
     with open(bibtex_path, 'r') as bibtex_file:
         bib_database = bibtexparser.load(bibtex_file, parser=parser)
@@ -166,3 +163,7 @@ if __name__ == '__main__':
     database = BibDatabase()
     database.entries = used_citations
     print bibtexparser.dumps(database)
+    print type(bibtexparser.dumps(database))
+
+    with open('/media/Data/Code/prune_bib/new.bib', 'w') as bibtex_file:
+        bibtexparser.dump(database, bibtex_file)
