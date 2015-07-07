@@ -7,6 +7,7 @@
 """
 
 import os
+import sys
 import argparse
 import textwrap
 import bibtexparser
@@ -118,24 +119,34 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser(formatter_class=formatter_class,
                                      description=textwrap.dedent(man))
 
-    parser.add_argument('bibtex', metavar='[.bib]', type=str,
+    parser.add_argument('bibtex', metavar='.bib', type=str,
                         help='path to BibTeX file')
 
-    parser.add_argument('latex', metavar='[.TeX]', type=str,
+    parser.add_argument('latex', metavar='.TeX', type=str,
                         help='path to LaTeX file')
+
+    msg = 'path to output BibTeX file. If omitted, the contents of the BibTeX '
+    msg += 'file will be printed to standard out.'
+    parser.add_argument('output', metavar='output.bib', nargs='?',
+                        type=str, default=None, help=msg)
 
     # Get arguments from the command-line.
     args = parser.parse_args()
 
     # Ensure the BibTeX file exists.
     if not os.path.isfile(args.bibtex):
-        msg = "The BibTeX file file '%s' does NOT exist."
+        msg = "The BibTeX file '%s' does NOT exist."
         raise IOError(msg % args.bibtex)
 
     # Ensure the LaTeX file exists.
     if not os.path.isfile(args.latex):
-        msg = "The LaTeX file file '%s' does NOT exist."
+        msg = "The LaTeX file '%s' does NOT exist."
         raise IOError(msg % args.latex)
+
+    # Ensure the output file does NOT exist.
+    if args.output and os.path.isfile(args.output):
+        msg = "The output file '%s' already exists."
+        raise IOError(msg % args.output)
 
     # -------------------------------------------------------------------------
     #                     Parse BibTeX and LaTeX files
@@ -162,8 +173,12 @@ if __name__ == '__main__':
     # Create new BibTeX database based on LaTeX citations.
     database = BibDatabase()
     database.entries = used_citations
-    print bibtexparser.dumps(database)
-    print type(bibtexparser.dumps(database))
 
-    with open('/media/Data/Code/prune_bib/new.bib', 'w') as bibtex_file:
-        bibtexparser.dump(database, bibtex_file)
+    # Write output to file.
+    if args.output:
+        with open(args.output, 'w') as bibtex_file:
+            bibtexparser.dump(database, bibtex_file)
+
+    # Write output to stdout.
+    else:
+        print bibtexparser.dumps(database)
