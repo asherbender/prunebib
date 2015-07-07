@@ -120,14 +120,14 @@ if __name__ == '__main__':
 
     prunebib was designed for finalising documents that reference large,
     general purpose BibTeX databases. For example, if multiple authors
-    contribute to a BibTeX database, the details of the citations or BibTeX
-    keys may change over time. This can cause the contents of bibliography to
-    change over time. Even worse, the original LaTeX document may longer
-    compile due to missing references or changed BibTeX keys.  By using
-    prunebib to prune and 'freeze' the BibTeX database, the published version
-    of the LaTeX document will be independent from changes to the database. The
-    source code of the distributed BibTeX file will also only contain entries
-    referenced in the published document.
+    contribute to a BibTeX database, this may cause the contents of a rendered
+    bibliography to change over time. Even worse, the original LaTeX document
+    may no longer compile due to missing references or changed BibTeX
+    keys. prunebib allows the BibTeX database to be 'frozen' before
+    distribution. The published version of the LaTeX document will be
+    independent from changes to the original BibTeX database. The source code
+    of the distributed BibTeX file will also only contain entries referenced in
+    the published document.
 
     """
     formatter_class = argparse.RawDescriptionHelpFormatter

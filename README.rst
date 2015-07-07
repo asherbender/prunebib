@@ -1,9 +1,6 @@
 PruneBib
 ================================================================================
 
-Overview
---------------------------------------------------------------------------------
-
 ``prunebib`` creates a database of BibTeX entries by pruning a pre-existing
 BibTeX database down to only the entries that are referenced in a LaTeX
 document. This is done by:
@@ -17,13 +14,13 @@ document. This is done by:
 
 ``prunebib`` was designed for finalising documents that reference large, general
 purpose BibTeX databases. For example, if multiple authors contribute to a
-BibTeX database, the details of the citations or BibTeX keys may change over
-time. This can cause the contents of bibliography to change over time. Even
-worse, the original LaTeX document may longer compile due to missing references
-or changed BibTeX keys.  By using ``prunebib`` to prune and 'freeze' the BibTeX
-database, the published version of the LaTeX document will be independent from
-changes to the database. The source code of the distributed BibTeX file will
-also only contain entries referenced in the published document.
+BibTeX database, this may cause the contents of a rendered bibliography to
+change over time. Even worse, the original LaTeX document may no longer compile
+due to missing references or changed BibTeX keys. ``prunebib`` allows the BibTeX
+database to be 'frozen' before distribution. The published version of the LaTeX
+document will be independent from changes to the original BibTeX database. The
+source code of the distributed BibTeX file will also only contain entries
+referenced in the published document.
 
 The process is demonstrated graphically below::
 
@@ -66,13 +63,6 @@ The process is demonstrated graphically below::
                          |                          |
                          +--------------------------+
 
-Dependencies
---------------------------------------------------------------------------------
-
-The following libraries are used in the Bayesian linear model module:
-
-* `bibtexparser <https://pypi.python.org/pypi/bibtexparser>`_
-
 Installation
 --------------------------------------------------------------------------------
 
@@ -86,7 +76,7 @@ repository:
     cd prunebib
     sudo pip install .
 
-Once installed the command ``prunebib`` is available from the command-line. The
+Once installed, the command ``prunebib`` is available from the command-line. The
 script is typically installed in
 
 .. code-block:: bash
@@ -99,7 +89,14 @@ To uninstall the package:
 
     pip uninstall prunebib
 
-Example
+Dependencies
+--------------------------------------------------------------------------------
+
+The following libraries are used in ``prunebib`` and are managed by pip:
+
+* `bibtexparser <https://pypi.python.org/pypi/bibtexparser>`_
+
+Usage
 --------------------------------------------------------------------------------
 
 To print the pruned bibliography to standard out:
