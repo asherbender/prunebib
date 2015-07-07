@@ -1,5 +1,6 @@
 #!/usr/bin/python
-"""
+"""Prune BibTeX file based on LaTeX citations
+
 .. sectionauthor:: Asher Bender <a.bender.dev@gmail.com>
 .. codeauthor:: Asher Bender <a.bender.dev@gmail.com>
 
@@ -7,6 +8,7 @@
 
 import os
 import argparse
+import textwrap
 import bibtexparser
 from bibtexparser.bparser import BibTexParser
 from bibtexparser.bibdatabase import BibDatabase
@@ -87,8 +89,37 @@ if __name__ == '__main__':
     #         Configure command-line options & parsing behaviour
     # -------------------------------------------------------------------------
 
-    man = """Prune BibTeX file based on LaTeX citations."""
-    parser = argparse.ArgumentParser(description=man)
+    man = """Prune BibTeX file based on LaTeX citations.
+
+    prunebib creates a database of BibTeX entries by pruning a pre-existing
+    BibTeX database down to only the entries that are referenced in a LaTeX
+    document.  This is done by:
+
+        1) Loading all entries from a pre-existing BibTeX database.
+
+        2) Scanning a LaTeX file for all BibTeX keys referenced within citation
+           (\cite{}) commands.
+
+        3) Returning a new BibTeX database containing only the entries that
+           are:
+               - valid entries in the pre-existing BibTeX database.
+               - referenced in the LaTeX document.
+
+    prunebib was designed for finalising documents that reference large,
+    general purpose BibTeX databases. For example, if multiple authors
+    contribute to a BibTeX database, the details of the citations or BibTeX
+    keys may change over time. This can cause the contents of bibliography to
+    change over time. Even worse, the original LaTeX document may longer
+    compile due to missing references or changed BibTeX keys.  By using
+    prunebib to prune and 'freeze' the BibTeX database, the published version
+    of the LaTeX document will be independent from changes to the database. The
+    source code of the distributed BibTeX file will also only contain entries
+    referenced in the published document.
+
+    """
+    formatter_class = argparse.RawDescriptionHelpFormatter
+    parser = argparse.ArgumentParser(formatter_class=formatter_class,
+                                     description=textwrap.dedent(man))
 
     parser.add_argument('bibtex', metavar='[.bib]', type=str,
                         help='path to BibTeX file')
