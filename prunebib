@@ -140,6 +140,9 @@ if __name__ == '__main__':
     parser.add_argument('latex', metavar='.TeX', type=str,
                         help='path to LaTeX file')
 
+    msg = 'Comma separated list of bibtex keys to ignore during pruning'
+    parser.add_argument('--ignore', type=str, default=None, help=msg)
+
     msg = 'path to output BibTeX file. If omitted, the contents of the BibTeX '
     msg += 'file will be printed to standard out.'
     parser.add_argument('output', metavar='output.bib', nargs='?',
@@ -184,6 +187,14 @@ if __name__ == '__main__':
             used_citations.append(database[citation])
         else:
             print "Could not locate the key '%s'." % citation
+
+    # Filter out BibTeX keys.
+    if args.ignore:
+        blacklist = [key.strip() for key in args.ignore.split(',')]
+        for citation in used_citations:
+            for key in blacklist:
+                if key in citation:
+                    del(citation[key])
 
     # Create new BibTeX database based on LaTeX citations.
     database = BibDatabase()
